@@ -1896,6 +1896,7 @@ process_broken_line (struct MHD_Connection *connection,
     {
       if (MHD_NO == process_header_line (connection, line))
         {
+          MHD_DLOG (connection->daemon, "MHD_HTTP_BAD_REQUEST (L1899)\n");
           transmit_error_response (connection,
                                    MHD_HTTP_BAD_REQUEST, REQUEST_MALFORMED);
           return MHD_NO;
@@ -1915,6 +1916,7 @@ process_broken_line (struct MHD_Connection *connection,
 static void
 parse_connection_headers (struct MHD_Connection *connection)
 {
+  //MHD_DLOG (connection->daemon, "parse_connection_headers\n");
   const char *clen;
   MHD_UNSIGNED_LONG_LONG cval;
   struct MHD_Response *response;
@@ -1943,6 +1945,7 @@ parse_connection_headers (struct MHD_Connection *connection)
         MHD_create_response_from_buffer (strlen (REQUEST_LACKS_HOST),
 					 (void*) REQUEST_LACKS_HOST,
 					 MHD_RESPMEM_PERSISTENT);
+      MHD_DLOG (connection->daemon, "MHD_HTTP_BAD_REQUEST (L1948)\n");
       MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, response);
       MHD_destroy_response (response);
       return;
@@ -2354,6 +2357,7 @@ MHD_connection_handle_idle (struct MHD_Connection *connection)
             }
           if (MHD_NO == process_header_line (connection, line))
             {
+              MHD_DLOG (connection->daemon, "MHD_HTTP_BAD_REQUEST (L2360)\n");
               transmit_error_response (connection,
                                        MHD_HTTP_BAD_REQUEST,
                                        REQUEST_MALFORMED);
@@ -2462,6 +2466,7 @@ MHD_connection_handle_idle (struct MHD_Connection *connection)
             }
           if (MHD_NO == process_header_line (connection, line))
             {
+              MHD_DLOG (connection->daemon, "MHD_HTTP_BAD_REQUEST (L2469)\n");
               transmit_error_response (connection,
                                        MHD_HTTP_BAD_REQUEST,
                                        REQUEST_MALFORMED);
