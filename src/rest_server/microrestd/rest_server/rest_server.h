@@ -38,13 +38,14 @@ class rest_server {
   void stop();
   bool wait_until_signalled();
 
+  template<typename... Args> void log(Args&&... args);
+
  private:
   class microhttpd_request;
 
   static int handle_request(void* cls, libmicrohttpd::MHD_Connection* connection, const char* url, const char* method, const char* version, const char* upload_data, size_t* upload_data_size, void** con_cls);
   static void request_completed(void* cls, libmicrohttpd::MHD_Connection* connection, void** con_cls, int toe);
 
-  template<typename... Args> void log(Args&&... args);
   void log_append();
   template<typename Arg, typename... Args> void log_append(Arg&& arg, Args&&... args);
   void log_append_pair(std::string& message, const char* key, const std::string& value);

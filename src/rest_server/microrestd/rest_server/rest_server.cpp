@@ -14,6 +14,8 @@
 #include <memory>
 #include <thread>
 
+#include <cstdio>
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <condition_variable>
 #include <mutex>
@@ -52,6 +54,22 @@ class MHD_PostProcessorDeleter {
     MHD_destroy_post_processor(post_processor);
   }
 };
+
+#define MAX_FUN_LOGGER_BUFF_SIZE 1024 
+
+void fun_logger(void * arg, const char * fmt, va_list ap) {
+    rest_server * srv = (rest_server*) arg;
+    int len = snprintf(NULL, 0, fmt, ap); // get output length
+    int buff_size = min(len + 1, MAX_FUN_LOGGER_BUFF_SIZE);
+    char buff[buff_size];
+    snprintf(buff, buff_size, fmt, ap); // write to buffer
+    srv->log(string(buff));
+}
+
+void * arg_logger(rest_server * srv) {
+    srv->log("Logger initialize ...");
+    return (void*) srv;
+}
 
 // Class rest_server::microhttpd_request
 class rest_server::microhttpd_request : public rest_request {
@@ -376,13 +394,14 @@ bool rest_server::start(rest_service* service, unsigned port) {
       { MHD_OPTION_END, 0, nullptr }
     };
 
-    daemon = MHD_start_daemon((threads ? MHD_USE_SELECT_INTERNALLY : MHD_USE_THREAD_PER_CONNECTION) | (use_poll ? MHD_USE_POLL : 0) | MHD_USE_PIPE_FOR_SHUTDOWN,
+    daemon = MHD_start_daemon((threads ? MHD_USE_SELECT_INTERNALLY : MHD_USE_THREAD_PER_CONNECTION) | (use_poll ? MHD_USE_POLL : 0) | MHD_USE_PIPE_FOR_SHUTDOWN | MHD_USE_DEBUG,
                               port, nullptr, nullptr, &handle_request, this,
                               MHD_OPTION_LISTENING_ADDRESS_REUSE, 1,
                               MHD_OPTION_ARRAY, threadpool_size,
                               MHD_OPTION_ARRAY, connection_limit,
                               MHD_OPTION_CONNECTION_MEMORY_LIMIT, size_t(64 << 10),
                               MHD_OPTION_CONNECTION_TIMEOUT, timeout,
+                              MHD_OPTION_EXTERNAL_LOGGER, fun_logger, arg_logger(this),
                               MHD_OPTION_NOTIFY_COMPLETED, &request_completed, this,
                               MHD_OPTION_END);
 
