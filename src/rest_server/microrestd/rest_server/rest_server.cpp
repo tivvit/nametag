@@ -272,8 +272,7 @@ MHD_Response* rest_server::microhttpd_request::create_generator_response(microht
 void rest_server::microhttpd_request::response_common_headers(unique_ptr<MHD_Response, MHD_ResponseDeleter>& response, const char* content_type) {
   if (!response) return;
   if (MHD_add_response_header(response.get(), MHD_HTTP_HEADER_CONTENT_TYPE, content_type) != MHD_YES ||
-      MHD_add_response_header(response.get(), MHD_HTTP_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, "*") != MHD_YES ||
-      MHD_add_response_header(response.get(), MHD_HTTP_HEADER_CONNECTION, "close") != MHD_YES)
+      MHD_add_response_header(response.get(), MHD_HTTP_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, "*") != MHD_YES)
     response.reset();
 }
 
